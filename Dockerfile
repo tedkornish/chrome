@@ -4,8 +4,6 @@ LABEL maintainer="Tomohisa Kusano <siomiz@gmail.com>"
 
 ENV VNC_SCREEN_SIZE 1024x768
 
-COPY copyables /
-
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
 	gdebi \
@@ -15,7 +13,8 @@ RUN apt-get update \
 	supervisor \
 	x11vnc \
 	fluxbox \
-	eterm
+	eterm \
+  simpleproxy
 
 ADD https://dl.google.com/linux/linux_signing_key.pub \
 	https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
@@ -25,6 +24,8 @@ ADD https://dl.google.com/linux/linux_signing_key.pub \
 RUN apt-key add /tmp/linux_signing_key.pub \
 	&& gdebi --non-interactive /tmp/google-chrome-stable_current_amd64.deb \
 	&& gdebi --non-interactive /tmp/chrome-remote-desktop_current_amd64.deb
+
+COPY copyables /
 
 RUN apt-get clean \
 	&& rm -rf /var/cache/* /var/log/apt/* /var/lib/apt/lists/* /tmp/* \
@@ -45,7 +46,11 @@ RUN apt-get clean \
 
 VOLUME ["/home/chrome"]
 
+# VNC.
 EXPOSE 5900
+
+# Chrome debugging port.
+EXPOSE 9223
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
 
